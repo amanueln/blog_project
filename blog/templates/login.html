@@ -1,0 +1,33 @@
+{% extends "nav.html" %}
+{% block content %}
+<body class="fullscreen">
+   <div class="container-fluid top-page img-responsive text-center user-signup ">
+     
+      
+          <div class="row">
+           <h1 class="text-uppercase">Login to your page</h1>
+            <h2>login to enter</h2>
+            <br><br><br>
+            </div>
+           <form method="post" action="">
+            <label for="">Username
+               <br>
+                <input type="text" name="user" value="{{username}}">
+            </label>
+            <div>{{error_username}}</div> 
+            <br>
+            <label for="">Password
+               <br>
+                <input type="password" name="password" value="">
+                 <div>{{error_password}}</div> 
+            </label>
+            <br>
+            <br> <br>
+            dont have an account:
+            <a href="/signup">Register</a>
+             <br> <br>
+            <input type="submit">
+        </form>
+</div>
+</body>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "nav.html" %}
+{% block content %}
+<body>
+	 <div class="container-fluid">
+	</div>
+	<form class="text-center text-uppercase" action="" method="post">
+        <div class="container">
+	    <h1 class="main-title">new blog post</h1>
+	    <br>
+	    <div class="row">
+	    <label for="">subject
+	    <br>
+	    <input class="blog-title" type="text" name="subject" value="{{subject}}">
+	    </label>
+	    </div>
+	    <br>
+	    <div class="row">
+	    <label for="">blog content
+	    <br>
+	    <textarea name="content" class="blog-body" cols="50" rows="10">{{content}}</textarea>
+	    </label>
+	    </div>
+	    <div>{{alert}}</div>
+	    <br>
+	    <button class="btn btn-info text-uppercase">submit blog</button>
+	    </div>
+	</form>
+</body>
+	{% endblock %}	
+
