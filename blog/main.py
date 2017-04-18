@@ -92,7 +92,7 @@ class Blog(db.Model):
         content = db.TextProperty(required = True)
         created = db.DateTimeProperty(auto_now_add = True)
         last_modified = db.DateTimeProperty(auto_now = True)
-        
+        user = db.IntegerProperty ()
 
 
 #stores registration data
@@ -100,6 +100,7 @@ class User(db.Model):
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
     email = db.StringProperty()
+    
     
     
     @classmethod
@@ -125,7 +126,18 @@ class User(db.Model):
         if u and valid_pw(name, pw, u.pw_hash):
             return u
     
+class Comment(db.Model):
+    user_id = db.IntegerProperty(required=True)
+    post_id = db.IntegerProperty(required=True)
+    comment = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
 
+    def getUserName(self):
+        user = User.by_id(self.user_id)
+        return user.name
+
+    
 class Rot13Handler(Handler):
     def post(self):
         plain_text = self.request.get("text")
@@ -204,7 +216,7 @@ class Login(SignUpHandler):
         if u:
             self.login(u)
             #self.redirect('/')
-            self.render('congrats.html', username= u.name)
+            self.redirect("/myblog")
         else:
             msg = 'Invalid login'
             self.render('login.html', error_username = msg)
@@ -239,9 +251,10 @@ class NewPost(Handler):
     def post(self):
             get_title = self.request.get("subject")
             get_blog = self.request.get("content")
+            get_user = self.user.key().id()
 
             if get_title and get_blog:
-                p = Blog(parent = blog_key(), subject = get_title, content = get_blog)
+                p = Blog(parent = blog_key(), subject = get_title, content = get_blog, user = get_user)
                 p.put()
                 self.redirect('/%s' % str(p.key().id()))
                 #b = Blog(subject=get_title, content=get_blog)
@@ -270,8 +283,12 @@ class MainPage(Handler):
             
 class MyBlogs(Handler):
     def default_blog(self, subject="", content=""):
-        blog_db = db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC limit 10")
-        self.render("myblog.html",subject=subject, content=content, blog_db= blog_db)
+        user_id = self.user.key().id()
+        my_blogs = Blog.all().filter('user =',  user_id)
+        user = self.user.name
+        self.render("myblog.html",subject=subject, content=content, blog_db= my_blogs, username= user)
+        
+       
     def get(self):
         if not self.user:
             self.redirect("/login")
