@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import random
 import string
+import time
 from google.appengine.ext import db
 
 
@@ -82,20 +83,23 @@ def users_key(group = 'default'):
     return db.Key.from_path('users', group)
 
 
-#stores blog posts
+#blog key
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
 
-
+#stores blog data of users
 class Blog(db.Model):
         subject = db.StringProperty(required = True)
         content = db.TextProperty(required = True)
         created = db.DateTimeProperty(auto_now_add = True)
         last_modified = db.DateTimeProperty(auto_now = True)
-        user = db.IntegerProperty ()
+        user = db.IntegerProperty(required = True)
+        blogger_name = db.StringProperty()
+        likes = db.IntegerProperty(required=True)
+        users_liked = db.StringListProperty(required=True)
 
 
-#stores registration data
+#stores registration data of users
 class User(db.Model):
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
@@ -125,17 +129,21 @@ class User(db.Model):
         u = cls.by_name(name)
         if u and valid_pw(name, pw, u.pw_hash):
             return u
-    
-class Comment(db.Model):
-    user_id = db.IntegerProperty(required=True)
-    post_id = db.IntegerProperty(required=True)
-    comment = db.TextProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
 
-    def getUserName(self):
-        user = User.by_id(self.user_id)
-        return user.name
+#comment key
+def comment_key(name = 'default'):
+    return db.Key.from_path('comments', name)
+
+#db for comments
+class Comment(db.Model):
+    content = db.TextProperty(required=True)
+    post_id = db.StringProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    commentor = db.StringProperty(required=True)
+    
+    def render(self):
+        self._render_text = self.content.replace('\n', '<br>')
+        return template_render_str("comment.html", c=self)
 
     
 class Rot13Handler(Handler):
@@ -226,17 +234,6 @@ class Logout(Handler):
         logout = self.logout()
         self.render('/', logout= logo)
 
-#start of blog posting page
-class PostPage(Handler):
-       def get(self, post_id):
-        key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
-        post = db.get(key)
-
-        if not post:
-            self.error(404)
-            return
-
-        self.render("permalink.html", post = post)
 
 class NewPost(Handler):
     def default_newpost(self, subject="", content=""):
@@ -252,11 +249,14 @@ class NewPost(Handler):
             get_title = self.request.get("subject")
             get_blog = self.request.get("content")
             get_user = self.user.key().id()
+            blogger_username = self.user.name
+            likes = 0
+            
 
             if get_title and get_blog:
-                p = Blog(parent = blog_key(), subject = get_title, content = get_blog, user = get_user)
+                p = Blog(parent = blog_key(), subject = get_title, content = get_blog, user = get_user, blogger_name = blogger_username, likes=likes)
                 p.put()
-                self.redirect('/%s' % str(p.key().id()))
+                self.redirect('/blog/%s' % str(p.key().id()))
                 #b = Blog(subject=get_title, content=get_blog)
                 #b.put()
                 #alert="blog posted"
@@ -265,12 +265,55 @@ class NewPost(Handler):
                 alert = "you need to submit both subject and blog content"
                 self.render("newblog.html",subject=get_title, content= get_blog, alert=alert)
 
+#start of blog posting page
+class PostPage(Handler):
+    def get(self, post_id):
+        comment_db = Comment.all().filter( "post_id = ", str(post_id)).order("-created").fetch(15)
+        key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+        post = db.get(key)
 
+        if not post:
+            self.error(404)
+            return
+        self.render("permalink.html", post = post, comment=comment_db)
+    
+    def post(self,post_id):
+        comment =self.request.get('comment')
+        if self.user:
+            comment = Comment(parent=comment_key(), content=comment,
+                        commentor=self.user.name, post_id=post_id)
+            comment.put()
+            time.sleep(.1)
+            self.redirect('/blog/%s' % str(post_id))
+        else:
+            if not self.user:
+                self.redirect('/login')
+            else:
+                self.response.out.write("please write something!")
+
+class DeletePost(Handler):
+    #check if user   
+    def get(self,post_id):
+        if not self.user:
+            self.redirect('/login')
+        else:
+            key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+            post = db.get(key) 
+            self.render("permalink.html", post = post)
+    
+    def post(self,post_id):
+        if not slef.user == post.blogger_name:
+            self.redirect('/login')
+        else:
+            key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+            post = db.get(key) 
+            db.delete(key)
+            time.sleep(.5)
+            self.redirect('/myblog')
+        
 class MainPage(Handler):
-    def users_key(group = 'default'):
-        return db.Key.from_path('users', group)
     def default_blog(self, subject="", content=""):
-        blog_db = db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC limit 10")
+        blog_db = Blog.all().order("-created").fetch(15)
         self.render("main.html",subject=subject, content=content, blog_db= blog_db)
     def get(self):
         self.default_blog()
@@ -280,7 +323,104 @@ class MainPage(Handler):
             self.render("login.html")
         else:
             self.default_blog()
-            
+
+class LikePost(Handler):
+    def get(self,post_id):
+        if not self.user:
+            self.render("login.html")
+        else:
+            self.redirect("/")
+    
+    def post(self,post_id):
+        key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+        post = db.get(key)
+        if self.user:
+            if not post.blogger_name == self.user.name:
+                if self.user.name not in post.users_liked:
+                    post.likes += 1
+                    post.users_liked.append(self.user.name)
+                    post.put()
+                    time.sleep(.1)
+                    self.redirect("/")
+                else:
+                    error = "you already liked this post!"
+                    self.response.out.write(error)
+            else:
+                error = "you cant like your own post"
+                self.response.out.write(error)
+        else:
+            self.redirect("/login")
+
+class DisLikePost(Handler):
+    def get(self,post_id):
+        if not self.user:
+            self.render("login.html")
+        else:
+            self.redirect("/")
+    
+    def post(self,post_id):
+        key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+        post = db.get(key)
+        if self.user:
+                if self.user.name in post.users_liked:
+                    post.likes -= 1
+                    post.users_liked.remove(self.user.name)
+                    post.put()
+                    time.sleep(.1)
+                    self.redirect("/")
+                else:
+                    error = "cant dislike what you didnt like!"
+                    self.response.out.write(error)
+                    
+        else:
+            self.redirect("/login")
+
+class EditPost(Handler):
+    def get(self, post_id):
+        print "GET"
+        print "post_id", post_id
+        key= db.Key.from_path('Blog', int(post_id), parent=blog_key())
+        p= db.get(key)
+		
+        if not p:
+            return self.error(404)
+            print "post present"
+            print "subject, content: ", p.subject, p.content
+    
+        if not self.user:
+            print "user not present"
+            return self.redirect("/login")
+
+        print "user present: ", self.user.name
+        time.sleep(.1)
+        self.render("editpost.html", subject=p.subject,content=p.content)
+                
+
+
+    def post(self,post_id):
+        if not self.user:
+            self.redirect('/')
+
+        key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
+        p = db.get(key)
+
+        if not p:
+            return self.error(404)
+
+        edit_subject = self.request.get('subject')
+        edit_content = self.request.get('content')
+
+        if edit_subject and edit_content:
+            p.subject = edit_subject
+            p.content = edit_content
+            p.put()
+            self.redirect('/blog/%s' % str(p.key().id()))
+        else:
+            error = "subject and content, please!"
+            self.render("editpost.html", p=p, error=error)
+                
+        
+
 class MyBlogs(Handler):
     def default_blog(self, subject="", content=""):
         user_id = self.user.key().id()
@@ -293,17 +433,21 @@ class MyBlogs(Handler):
         if not self.user:
             self.redirect("/login")
         else:
-             self.default_blog()
+            self.default_blog()
             
              
     def post(self):
         pass
 
-app = webapp2.WSGIApplication([('/', MainPage),
+app = webapp2.WSGIApplication([('/?', MainPage),
                                ('/myblog', MyBlogs),
                                ('/rot13', Rot13Handler),
                                ('/signup', SignUpHandler),
                                ('/login', Login),
                                ('/newpost', NewPost),
-                               ('/([0-9]+)', PostPage),
-                              ], debug=True)
+                               ('/blog/([0-9]+)', PostPage),
+                               ('/edit/([0-9]+)', EditPost),
+                               ('/like/([0-9]+)', LikePost),
+                               ('/dislike/([0-9]+)', DisLikePost),
+                               ('/delete/([0-9]+)', DeletePost),
+                               ], debug=True)

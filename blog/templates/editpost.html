@@ -3,9 +3,9 @@
 <body>
 	 <div class="container-fluid">
 	</div>
+	<div class="container">
 	<form class="text-center text-uppercase" action="" method="post">
-        <div class="container">
-	    <h1 id="main-title" class="main-title">new blog post</h1>
+        <h1 id="main-title" class="main-title">edit blog post</h1>
 	    <br>
 	    <div class="row">
 	    <label for="">subject
@@ -22,9 +22,12 @@
 	    </div>
 	    <div>{{alert}}</div>
 	    <br>
-	    <button class="btn btn-info text-uppercase">submit blog</button>
-	    </div>
+	    <button class="btn btn-info text-uppercase social">update blog</button>
+	    <a href="/myblog" class=" btn btn-info text-uppercase social">cancel edit</a>
 	</form>
+
+	</div>
+	
 </body>
 	{% endblock %}	
 

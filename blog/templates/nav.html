@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,7 +8,9 @@
     <title>Blogs</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/appengine/standard/rot_13/static/stylesheet/main.css">
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Abril+Fatface|Francois+One|Patua+One|Rationale|Peddana" rel="stylesheet">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn t work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -17,65 +20,80 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-default navbar-inverse " role="navigation">
-    <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a class="navbar-brand text-uppercase" href="/">Blog Central</a> </div>
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav text-uppercase">
-                <li><a href="/myblog">my blogs</a></li>
-            </ul>
-            <form class="navbar-form navbar-left" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search"> </div>
-                <button type="submit" class="btn btn-default">Submit</button>
-            </form>
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <p class="navbar-text">Already have an account?</p>
-                </li>
-                <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Login</b> <span class="caret"></span></a>
-                    <ul id="login-dp" class="dropdown-menu">
-                        <li>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
-                                        <div class="form-group">
-                                            <label class="sr-only" for="username">Username</label>
-                                            <input type="text" class="form-control" name="user" value="{{username}}" placeholder="Username" required> </div>
+    <nav class="navbar navbar-default navbar-inverse " role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a class="navbar-brand text-uppercase social" href="/">Blog Central</a> </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav text-uppercase">
+                    <li><a class="social" href="/myblog"><i class=" fa fa-user-circle-o fa-lg" aria-hidden="true"></i>my blogs</a></li>
+                </ul>
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search"> </div>
+                    <button type="submit" class="social btn btn-default">Submit</button>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <p class="navbar-text">Already have an account?</p>
+                    </li>
+                    <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Login</b> <span class="caret"></span></a>
+                        <ul id="login-dp" class="dropdown-menu">
+                            <li>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
+                                            <div class="form-group">
+                                                <label class="sr-only" for="username">Username</label>
+                                                <input type="text" class="form-control" name="user" value="{{username}}" placeholder="Username" required> </div>
                                             <div>{{error_username}}</div>
-                                        <div class="form-group">
-                                            <label class="sr-only" for="exampleInputPassword2">Password</label>
-                                            <input type="password" class="form-control" name="password" placeholder="Password" required>
-                                            <div class="help-block text-center"><a href="/signup">Make an Account?</a></div>
-                                        </div>
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-                                        </div>
-                                        <div class="checkbox text-left">
-                                            <label>
-                                                <input type="checkbox"> keep me logged-in </label>
-                                        </div>
-                                    </form>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                                                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                                                <div class="help-block text-center"><a href="/signup">Make an Account?</a></div>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="submit" class="social btn btn-primary btn-block">Sign in</button>
+                                            </div>
+                                            <div class="checkbox text-left">
+                                                <label>
+                                                    <input type="checkbox"> keep me logged-in </label>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
         </div>
-        <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container-fluid -->
-</nav>
-  <main>
-   {% block content %}
+        <!-- /.container-fluid -->
+    </nav>
+    <main> 
+    {% block content %} 
     
-     {% endblock %}
-</main>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    {% endblock %} 
+    </main>
+    <br>
+    <br>
+    <footer>
+        <div class="container-fluid">
+            <div class="text-center center-block">
+                <hr>
+                <p class="txt-railway text-uppercase">- Contact me -</p> 
+                <a href="https://www.facebook.com/"><i id="social-fb" class="fa fa-facebook-square fa-3x social"></i></a>
+                <a href="#"><i id="social-tw" class="fa fa-linkedin-square fa-3x social"></i></a> <a href="#"><i id="social-gp" class="fa fa-google-plus-square fa-3x social"></i></a> 
+                <a href="mailto:nathanielamanuel@gmail.com"><i id="social-em" class="fa fa-envelope-square fa-3x social"></i></a> 
+            </div>
+            <hr> 
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
+
 </html>
