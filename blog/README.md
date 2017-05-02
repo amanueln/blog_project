@@ -18,7 +18,7 @@ Setup
 
 7.View your project at unique-name.appspot.com.
 
-8.Web page will load.
+8.Web page will load and look like live example:https://hello-world-158419.appspot.com/
 
 9.When developing locally, you can use dev_appserver.py to run a copy of your app on your own computer, and access it at 'http://localhost:8080/'.
 
