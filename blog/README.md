@@ -1,5 +1,5 @@
 # Udacity Blog Project
-As part of [Udacity's Full-Stack Web Developer program](https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004), create a webpage, powered by Python, featuring Multi User Blog called Blog Central 
+As part of [Udacity's Full-Stack Web Developer program](https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004), create a webpage, powered by Google App Engine using python,jinja2,GQL in the back end, featuring Multi User Blog called Blog Central 
 
 ##Instructions: How to Launch Webpage
 Setup
