@@ -1,74 +1,58 @@
 {% extends "nav.html" %} {% block content %}
 <!--This blog posted section-->
-
-    <div class="container">
-        <div class="col-md-6"> <a class="btn btn-default center-block text-uppercase" href="/" role="button">blogs</a> </div>
-        <div class="col-md-6"> <a class="btn btn-default center-block text-uppercase" href="/newpost" role="button">post a blog</a></div>
-    </div>
-    <br>
-    <div class="container blog">
-        <div class="row">
-            <hr>
-            <div class="blog-time text-uppercase text-right">posted by: {{post.blogger_name}}</div>
-            <div class="blog-time text-uppercase text-right">{{post.created.strftime("%b %d,%y")}}</div>
-            <form class="pull-left" method="post" action="/like/{{post.key().id()}}">
-                <input type="submit" value="&#xf164"> <strong class="rating">{{post.likes}}</strong> </form>
-            <form class="" method="post" action="/dislike/{{post.key().id()}}">
-                <input type="submit" value="&#xf165;"> </form>
-            <div class="blog-subject text-uppercase text-center">
-                <h2>{{post.subject}}</h2> </div>
-            <br> </div>
-        <div class="row"> <pre class="blog-content text-center  col-md-12"><h5><strong>{{post.content}}</strong></h5></pre> </div>
-       
-        <a href="/edit/{{post.key().id()}}" class="pull-right social"><input type="submit" value="&#xf044;"></a>`
+<div class="container">
+    <div class="col-md-6"> <a class="btn btn-default center-block text-uppercase" href="/" role="button">blogs</a> </div>
+    <div class="col-md-6"> <a class="btn btn-default center-block text-uppercase" href="/newpost" role="button">post a blog</a></div>
+</div>
+<br>
+<div class="container blog">
+    <div class="row">
+        <hr>
+        <div class="blog-time text-uppercase text-right">posted by: {{post.blogger_name}}</div>
+        <div class="blog-time text-uppercase text-right">{{post.created.strftime("%b %d,%y")}}</div>
+        <form class="pull-left" method="post" action="/like/{{post.key().id()}}">
+            <input type="submit" value="&#xf164"> <strong class="rating">{{post.likes}}</strong> </form>
+        <form class="" method="post" action="/dislike/{{post.key().id()}}">
+            <input type="submit" value="&#xf165;"> </form>
+        <div class="blog-subject text-uppercase text-center">
+            <h2>{{post.subject}}</h2> </div>
+        <br> </div>
+    <div class="row"> <pre class="blog-content text-center  col-md-12"><h5><strong>{{post.content}}</strong></h5></pre> </div>
+    <a href="/edit/{{post.key().id()}}" class="pull-right social">
+        <input type="submit" value="&#xf044;">
+    </a>`
     <form class="social pull-right" method="post" action="/delete/{{post.key().id()}}">
-            <input type="submit" value="&#xf1f8;"> 
-            </form>
-            <hr>
-    </div>
-    <br>
-    
-    
-   <!--This is a Comments  section are not displayed in the browser untill posted--> 
-    <h1 id="main-title" class="text-center text-uppercase">comments</h1>
-       <h6 id="#" class="text-center text-uppercase">comment below</h6>
-    
-     
-    
-    
-    <hr>
-    
-<!--This is a Comments  render section-->
-  {% for c in comment%}
-     <div class="container blog">
+        <input type="submit" value="&#xf1f8;"> </form>
+    <hr> </div>
+<br>
+<!--This is a Comments  section are not displayed in the browser untill posted-->
+<h1 id="main-title" class="text-center text-uppercase">comments</h1>
+<h6 id="#" class="text-center text-uppercase">comment below</h6>
+<hr>
+<!--This is a Comments  render section-->{% for c in comment%}
+<div class="container blog">
+    <div class="row">
+        <div class="blog-time text-uppercase text-left">comment by: {{c.commentor}}</div>
+        <div class="blog-time text-uppercase text-left">{{c.created.strftime("%b %d,%y")}}</div>
+        <br> </div>
+    <div class="row"> <pre class="blog-content text-center  col-md-12"><h5><strong>{{c.content}}</strong></h5></pre> </div>
+    <a href="/editcomment/{{c.key().id()}}" class=" pull-right social">
+        <input type="submit" value="&#xf044;">
+    </a>`
+    <form class="social pull-right" method="post" action="/deletecomment/{{c.key().id()}}">
+        <input type="submit" value="&#xf1f8;"> </form>
+</div> {% endfor %}
+<!--This is a Comments  post section-->
+<div class="container">
+    <form name="" class="text-center text-uppercase" action="" method="post">
+        <br>
         <div class="row">
-            
-            <div class="blog-time text-uppercase text-left">comment by: {{c.commentor}}</div>
-            <div class="blog-time text-uppercase text-left">{{c.created.strftime("%b %d,%y")}}</div>
-            <br> </div>
-        <div class="row"> <pre class="blog-content text-center  col-md-12"><h5><strong>{{c.content}}</strong></h5></pre> </div>
-        <a href="/edit/{{post.key().id()}}" class=" pull-right social"><input type="submit" value="&#xf044;"></a>`
-    <form class="social pull-right" method="post" action="/delete/{{post.key().id()}}">
-            <input type="submit" value="&#xf1f8;"> 
-            </form>
-    </div>
-   
-   
-  {% endfor %}
-
-    <!--This is a Comments  post section-->
-	<div class="container">
-	<form name="" class="text-center text-uppercase" action="" method="post">
-	    <br>
-	    <div class="row">
-	    <label for="">post a comment
-	    <br>
-	    <textarea name="comment" placeholder=" Post Your Comments" class="blog-body" cols="40" rows="10">{{content}}</textarea>
-	    </label>
-	    </div>
-	    <br>
-	    <button class="btn btn-info text-uppercase social">post comment</button>
-	</form>
-
-	</div>
-{% endblock %}
+            <label for="">
+                <br>
+                <textarea name="comment" placeholder=" Post Your Comments" class="blog-body text-center" cols="40" rows="10">{{content}}</textarea>
+            </label>
+        </div>
+        <br>
+        <button class="btn btn-info text-uppercase social">post comment</button>
+    </form>
+</div> {% endblock %}

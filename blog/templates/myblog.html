@@ -1,41 +1,34 @@
-{% extends "nav.html" %}
-{% block content %}
+{% extends "nav.html" %} {% block content %}
+
 <body>
-   <div class="container">
+    <div class="container">
         <div class="row">
             <div class="col-md-6 col-sm-12" col-sm-12> <a class="btn btn-default center-block text-uppercase" href="/" role="button">blogs</a> </div>
             <div class="col-md-6 col-sm-12"> <a class="btn btn-default center-block text-uppercase" href="/newpost" role="button">post a blog</a> </div>
         </div>
-        
         <h1 id="main-title" class="text-center text-uppercase"><u>{{username}}'s</u> blog posts</h1>
         <br>
-        <br> 
-        {% for blogs in blog_db %}
+        <br> {% for blogs in blog_db %}
         <div class="container-fluid blog">
             <div class="row">
                 <hr>
                 <div class="blog-time text-uppercase text-right">by : {{blogs.blogger_name}}</div>
                 <div class="blog-time text-uppercase text-right">{{blogs.created.strftime("%b %d,%y")}}</div>
                 <form class="pull-left" method="post" action="/like/{{blogs.key().id()}}">
-            <input type="submit" value="&#xf164;"><strong class="rating">{{blogs.likes}}</strong>
-            </form>
-                 <form class="#" method="post" action="/dislike/{{blogs.key().id()}}">
-            <input type="submit" value="&#xf165;">
-            </form>
+                    <input type="submit" value="&#xf164;"><strong class="rating">{{blogs.likes}}</strong> </form>
+                <form class="#" method="post" action="/dislike/{{blogs.key().id()}}">
+                    <input type="submit" value="&#xf165;"> </form>
                 <div class="blog-subject text-uppercase text-center">
                     <h2>{{blogs.subject}}</h2> </div>
                 <br> </div>
             <div class="row"> <pre class="blog-content text-center col-md-12"><h5><strong>{{blogs.content}}</strong></h5></pre> </div>
-              
-        <a href="/edit/{{blogs.key().id()}}" class="pull-right social"><input type="submit" value="&#xf044;"></a>`
-        <a href="/blog/{{blogs.key().id()}}" class="pull-right social"><input type="submit" value="&#xf086;"></a>`
-    <form class="social pull-right" method="post" action="/delete/{{blogs.key().id()}}">
-            <input type="submit" value="&#xf1f8;"> 
-            </form>
-        </div> 
-        {% endfor %}
-    </div>
-</body>
-{% endblock %}
-
-
+            <a href="/edit/{{blogs.key().id()}}" class="pull-right social">
+                <input type="submit" value="&#xf044;">
+            </a>`
+            <a href="/blog/{{blogs.key().id()}}" class="pull-right social">
+                <input type="submit" value="&#xf086;">
+            </a>`
+            <form class="social pull-right" method="post" action="/delete/{{blogs.key().id()}}">
+                <input type="submit" value="&#xf1f8;"> </form>
+        </div> {% endfor %} </div>
+</body> {% endblock %}

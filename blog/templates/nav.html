@@ -35,6 +35,12 @@
                         <input type="text" class="form-control" placeholder="Search"> </div>
                     <button type="submit" class="social btn btn-default">Submit</button>
                 </form>
+                {% if user %}
+                     <ul class="text-uppercase nav navbar-nav navbar-right">
+                    <li>
+                        <p id="logout_text"> {{user.name}} (<a id="logout_text " class="login-link" href="/logout">logout</a>)</p>
+                    </li>
+                {% else %}
                 <ul class="nav navbar-nav navbar-right">
                     <li>
                         <p class="navbar-text">Already have an account?</p>
@@ -67,6 +73,8 @@
                             </li>
                         </ul>
                     </li>
+                </ul>
+                {% endif %}
                 </ul>
             </div>
             <!-- /.navbar-collapse -->

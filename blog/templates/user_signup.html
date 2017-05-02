@@ -1,49 +1,37 @@
-<!DOCTYPE html>
-<html lang="">
-{% extends "nav.html" %}
-{% block content %}
-    <body class="fullscreen">
-   <div class="container-fluid top-page img-responsive text-center user-signup ">
-     
-      
-          <div class="row">
-           <h1 id="main-title" class="text-uppercase">Welcome to blog central</h1>
+<body class="fullscreen">
+    <div class="container-fluid top-page img-responsive text-center user-signup ">
+        <div class="row">
+            <h1 id="main-title" class="text-uppercase">Welcome to blog central</h1>
             <h2>Sign up to enter</h2>
-            <br><br><br>
-            </div>
-           <form method="post" action="">
+            <br>
+            <br>
+            <br> </div>
+        <form method="post" action="">
             <label for="">Username
-               <br>
+                <br>
                 <input type="text" name="user" value="{{username}}">
                 <div>{{error_username}}</div>
             </label>
             <br>
             <label for="">Password
-               <br>
+                <br>
                 <input type="password" name="password">
-                 <div>{{error_password}}</div> 
+                <div>{{error_password}}</div>
             </label>
             <br>
             <label for="">Verify Password
-               <br>
+                <br>
                 <input type="password" name="verify">
-                 <div>{{error_verify}}</div> 
+                <div>{{error_verify}}</div>
             </label>
             <br>
             <label for="">Email Address(optional)
-               <br>
-                <input type="email" name="email" value="{{email}}"> 
-            </label>
-            <br> <br>
-            already have an account:
-            <a class="#" href="/login">Login</a>
-             <br> <br>
-            <input class="social" type="submit">
-        </form>
-</div>
-  
-</body>
-     {% endblock %}
-
-
-</html>
+                <br>
+                <input type="email" name="email" value="{{email}}"> </label>
+            <br>
+            <br> already have an account: <a class="#" href="/login">Login</a>
+            <br>
+            <br>
+            <input class="social" type="submit"> </form>
+    </div>
+</body> {% endblock %}
