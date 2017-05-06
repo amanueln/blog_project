@@ -1,19 +1,17 @@
 import os
 import jinja2
 import webapp2
-import codecs 
 import re
 import hashlib
 import hmac
 import random
 import string
-import time
 from google.appengine.ext import db
 
 
 SECRET ='6YDYJZvM_mowfM9N8_HDZpRDoS_TfdcfNoh'
 
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+template_dir = os.path.join(  os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
     
@@ -141,16 +139,6 @@ class Comment(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     commentor = db.StringProperty(required=True)
 
-    
-class Rot13Handler(Handler):
-    def post(self):
-        plain_text = self.request.get("text")
-        rot13_text = codecs.encode(plain_text, 'rot_13')
-        self.render("rot_13.html", text=rot13_text, user=self.user)
-
-    def get(self):
-        text = ""
-        self.render('rot_13.html', text=text, user=self.user)
 
 USER_RE =re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 USER_PW = re.compile(r"^.{3,20}$")
@@ -243,6 +231,9 @@ class NewPost(Handler):
             
     
     def post(self):
+            if not self.user:
+                return self.redirect("/login")
+            
             get_title = self.request.get("subject")
             get_blog = self.request.get("content")
             get_user = self.user.key().id()
@@ -253,11 +244,11 @@ class NewPost(Handler):
             if get_title and get_blog:
                 p = Blog(parent = blog_key(), subject = get_title, content = get_blog, user = get_user, blogger_name = blogger_username, likes=likes)
                 p.put()
-                self.redirect('/blog/%s' % str(p.key().id()))
+                return self.redirect('/blog/%s' % str(p.key().id()))
         
             else:
                 alert = "you need to submit both subject and blog content"
-                self.render("newblog.html",subject=get_title, content= get_blog, alert=alert, user=self.user)
+                return self.render("newblog.html",subject=get_title, content= get_blog, alert=alert, user=self.user)
 
 #posts all blogs and comments
 class PostPage(Handler):
@@ -269,20 +260,22 @@ class PostPage(Handler):
         post = db.get(key)
 
         if not post:
-            self.error(404)
-            return
+            return self.write("no post")
+        
         return self.render("permalink.html", post = post, comment=comment_db, user=self.user)
     
     def post(self,post_id):
-        comment =self.request.get('comment')
         if self.user:
+            comment =self.request.get('comment')
+            if not comment:
+                return self.write("no comment enterterd")
+            
             comment = Comment(parent=comment_key(), content=comment,
                         commentor=self.user.name, post_id=post_id)
             comment.put()
-            time.sleep(.1)
             return self.redirect('/blog/%s' % str(post_id))
         
-        return self.response.out.write("please write something!")
+        
 
 class DeletePost(Handler):
     def get(self,post_id):
@@ -290,8 +283,10 @@ class DeletePost(Handler):
             self.redirect('/login')
             
         key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
-        post = db.get(key) 
-        self.render("permalink.html", post = post, user=self.user)
+        post = db.get(key)
+        if not post:
+            return self.write("no longer there to retrieve")
+        return self.render("permalink.html", post = post, user=self.user)
     
     def post(self,post_id):
         key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
@@ -301,21 +296,22 @@ class DeletePost(Handler):
             return self.write("cant delete another users post")
         
         key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
-        post = db.get(key) 
+        post = db.get(key)
+        if not post:
+            return self.write('blog not in database')
         db.delete(key)
-        time.sleep(.1)
         return self.redirect('/')
 
 class DeleteComment(Handler):
     def post(self,post_id):
         key = db.Key.from_path('Comment', int(post_id), parent=comment_key())
         comment = db.get(key)
-        
+        if not comment:
+            return self.write('no comment in database')
         if not self.user.name == comment.commentor:
             return self.write("cant delete another users comment")
         print "user, bloger: ", self.user.name,  comment.commentor
         comment.delete()
-        time.sleep(.1)
         return self.redirect('/blog/%s' % str(comment.post_id))
         
 class MainPage(Handler):
@@ -324,7 +320,7 @@ class MainPage(Handler):
         return self.render("main.html",subject=subject, content=content, blog_db= blog_db, user=self.user)
     
     def get(self):
-        self.default_blog()
+        return self.default_blog()
 
     def post(self):
         if not self.user:
@@ -340,14 +336,14 @@ class LikePost(Handler):
     def post(self,post_id):
         key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
         post = db.get(key)
-        
+        if not post:
+            return self.write('no likes')
         if self.user:
             if not post.blogger_name == self.user.name:
                 if self.user.name not in post.users_liked:
                     post.likes += 1
                     post.users_liked.append(self.user.name)
                     post.put()
-                    time.sleep(.1)
                     return self.redirect("/")
                 
                 error = "you already liked this post!"
@@ -369,13 +365,13 @@ class DisLikePost(Handler):
     def post(self,post_id):
         key = db.Key.from_path('Blog', int(post_id), parent=blog_key())
         post = db.get(key)
-        
+        if not post:
+            return self.write('no dislikes')
         if self.user:
                 if self.user.name in post.users_liked:
                     post.likes -= 1
                     post.users_liked.remove(self.user.name)
                     post.put()
-                    time.sleep(.1)
                     return self.redirect("/")
                 else:
                     error = "cant dislike what you didnt like!"
@@ -401,7 +397,6 @@ class EditPost(Handler):
             return self.redirect("/login")
 
             
-        time.sleep(.1)
         return self.render("editpost.html", subject=p.subject,content=p.content, user=self.user)
                 
 
@@ -448,7 +443,7 @@ class EditComment(Handler):
             return self.redirect("/login")
         key = db.Key.from_path('Comment', int(post_id), parent=blog_key())
         post = db.get(key)
-        time.sleep(.1)
+    
         self.render("editcomment.html",content=comment.content, user=self.user)
                 
 
@@ -469,13 +464,14 @@ class EditComment(Handler):
         if edit_content:
             comment.content = edit_content
             comment.put()
-            time.sleep(.1)
+        
             return self.redirect('/blog/%s' % str(comment.post_id))
         
 
 class MyBlogs(Handler):
     def default_blog(self, subject="", content=""):
         user_id = self.user.key().id()
+        
         my_blogs = Blog.all().filter('user =',  user_id)
         user = self.user.name
         self.render("myblog.html",subject=subject, content=content, blog_db= my_blogs, username= user,user=self.user)
@@ -493,7 +489,6 @@ class MyBlogs(Handler):
 
 app = webapp2.WSGIApplication([('/?', MainPage),
                                ('/myblog', MyBlogs),
-                               ('/rot13', Rot13Handler),
                                ('/signup', SignUpHandler),
                                ('/login', Login),
                                ('/logout', Logout),
